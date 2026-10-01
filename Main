@@ -1,63 +1,68 @@
-#13.02.2026 Печерин Егор ИИ-71 уровень: B
+import networkx as nx
+import matplotlib.pyplot as plt
 
-№1
-Сложность линейной сортировки выше. Сложность бинарной сортировки является O(Log n), достигнутая за счет использования бинарного дерева поиска, что позволяет сократить кол-во пересечений
+G = nx.Graph()
 
- №2
-import random
+edges = [
+    (0, 1, 4),
+    (0, 4, 2),
+    (1, 2, 1),
+    (2, 3, 3),
+    (2, 4, 5),
+    (3, 4, 1)
+]
 
-list = []
-n = int(input())
-anwser = 0
-
-for i in range(n):
-    num = random.randint(0, 100000)
-    list.append(num)
-print(list)
-
-for i in range(len(list)):
-    sum_pairs = list[i] + list[i-1]
-    if sum_pairs % 2 != 0:
-        anwser += 1
-
-print(anwser)
-
-№3
-import random
-
-list_1 = []
-list_2 = []
-n_1 = int(input(': '))
-n_2 = int(input(': '))
-anwser = 0
-
-for i in range(n_1):
-    num = random.randint(0, 100000)
-    list_1.append(num)
-
-print(list_1.sort())
-
-for i in range(n_2):
-    num = random.randint(0, 100000)
-    list_2.append(num)
-
-print(list_1.sort())
-
-list_1.append(list_2)
+G.add_weighted_edges_from(edges)
 
 
-def sort():
-    for i in range(len(list_1)):
-        min_index = i
-        for j in range(i + 1, len(list_1)):
-            if list_1[j] < list_1[min_index]:
-                min_index = j
-            list_1[i], list_1[min_index] = list_1[min_index], list_1[i]
-        return list_1
+# № 1
+def find_max_degree_node(graph):
+    max_edges = -1
+    best_node = -1
 
-sort()
+    for node in graph.nodes():
+        current_degree = graph.degree[node]
 
-№4
-Линейный поиск справляется со списками из эллементов с маленькими разницами и большими примерно ожинаково: 15.40 мб
-Бинарный поиск справился с такими же списками за: 15.11 мб
-По исходам данного теста, можно понять что бинарный поиск требует меньше памяти, чем линейный поиск
+        if current_degree > max_edges:
+            max_edges = current_degree
+            best_node = node
+
+    return best_node, max_edges
+
+
+node, count = find_max_degree_node(G)
+print(f"Узел с максимальным количеством ребер: {node} (всего ребер: {count})")
+
+
+# №3
+def run_dijkstra(graph, start_node):
+    distances = nx.single_source_dijkstra_path_length(graph, start_node, weight='weight')
+    return distances
+
+
+start = 0
+shortest_paths = run_dijkstra(G, start)
+print(f"Кратчайшие расстояния от узла {start}:")
+for node, dist in shortest_paths.items():
+    print(f"До узла {node}: {dist}")
+
+
+# №2
+def draw_graph(graph):
+    plt.figure(figsize=(8, 6))
+
+    pos = nx.spring_layout(graph, seed=42)
+
+    nx.draw_networkx_nodes(graph, pos, node_size=700, node_color='lightblue', edgecolors='black')
+
+    nx.draw_networkx_labels(graph, pos, font_size=16)
+
+    nx.draw_networkx_edges(graph, pos, width=2)
+
+    edge_labels = nx.get_edge_attributes(graph, 'weight')
+    nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels, font_color='red', font_size=12)
+
+    plt.show()
+
+
+draw_graph(G)
